@@ -6,6 +6,10 @@
     "Generate": {
       "commandName": "Project",
       "commandLineArgs": "generate -f translations.json"
+    },
+    "Add": {
+      "commandName": "Project",
+      "commandLineArgs": "add -f langs.json -r SPANISH -l ARABIC -i ar"
     }
   }
 }

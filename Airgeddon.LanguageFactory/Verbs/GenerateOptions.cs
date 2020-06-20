@@ -5,11 +5,9 @@ using System.Text;
 
 namespace Airgeddon.LanguageFactory.Verbs
 {
-    public class GenerateOptions
+    [Verb("generate", HelpText = "Generate the json language file.")]
+    public class GenerateOptions : BaseOptions
     {
-
-        [Option('f', "filename", Required = true, HelpText = "Output filename (json extension added if empty).")]
-        public string Filename { get; set; }
 
     }
 }

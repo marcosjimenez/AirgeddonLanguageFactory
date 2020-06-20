@@ -12,9 +12,10 @@ namespace Airgeddon.LanguageFactory
         static int Main(string[] args)
         {
 
-            return Parser.Default.ParseArguments<GenerateOptions>(args)
+            return Parser.Default.ParseArguments<GenerateOptions, AddOptions>(args)
                .MapResult(
                  (GenerateOptions opts) => RunGenerate(opts),
+                 (AddOptions opts) => RunAdd(opts),
                  errs => 1);
         }
 
@@ -28,13 +29,20 @@ namespace Airgeddon.LanguageFactory
             Console.ForegroundColor = color;
         }
 
+        static void CheckInputFileExists()
+        {
+            if (!File.Exists(GetInputFilename())) { 
+                ShowError($"File {TranslationFilename} not found.");
+                throw new FileNotFoundException();
+            }
+        }
+
         static int RunGenerate(GenerateOptions opts)
         {
 
-            if (!File.Exists(GetInputFilename()))
-                ShowError($"File {TranslationFilename} not found.");
+            CheckInputFileExists();
 
-            var generator = new TranslationGenerator(GetInputFilename());
+            var generator = new TranslationFileGenerator(GetInputFilename());
 
             try
             {
@@ -49,5 +57,23 @@ namespace Airgeddon.LanguageFactory
             }
         }
 
+        static int RunAdd(AddOptions opts)
+        {
+            CheckInputFileExists();
+
+            var manager = new TranslationManager();
+            manager.Initialize(opts.Filename);
+
+            try
+            {
+                manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode);
+                return 0;
+            }
+            catch(Exception ex)
+            {
+                ShowError(ex.Message);
+                return 1;
+            }
+        }
     }
 }

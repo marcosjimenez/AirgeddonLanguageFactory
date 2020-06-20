@@ -5,14 +5,14 @@ using System.Text.Json;
 
 namespace Airgeddon.LanguageFactory
 {
-    public class TranslationGenerator
+    public class TranslationFileGenerator
     {
 
         private readonly string _inputFilename;
         private readonly string[] NoIndexWords = { "unknown_chipset", "hintprefix", "optionaltool_needed", "under_construction", "possible_package_names_text", "disabled_text", "reboot_required", "docker_image" };
         private readonly string[] IndexWords = { "et_misc_texts", "wps_texts", "asleap_texts", "jtr_texts", "hashcat_texts", "aircrack_texts", "enterprise_texts", "footer_texts", "arr" };
 
-        public TranslationGenerator(string inputFilename)
+        public TranslationFileGenerator(string inputFilename)
         {
             _inputFilename = inputFilename;
         }
