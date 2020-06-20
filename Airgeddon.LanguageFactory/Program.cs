@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using Airgeddon.LanguageFactory.Verbs;
-using CommandLine;
-
-namespace Airgeddon.LanguageFactory
+﻿namespace Airgeddon.LanguageFactory
 {
+    using System;
+    using System.IO;
+    using System.Text;
+    using Airgeddon.LanguageFactory.Verbs;
+    using CommandLine;
     class Program
     {
         private const string TranslationFilename = "language_strings.sh";
@@ -21,12 +21,14 @@ namespace Airgeddon.LanguageFactory
 
         private static string GetInputFilename() => Path.Combine(Directory.GetCurrentDirectory(), TranslationFilename);
 
-        private static void ShowError(string description)
+        private static void ShowError(string message) => ShowMessage(message, ConsoleColor.Red);
+
+        private static void ShowMessage(string message, ConsoleColor color = ConsoleColor.White)
         {
-            var color = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(description);
+            var lastColor = Console.ForegroundColor;
             Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ForegroundColor = lastColor;
         }
 
         static void CheckInputFileExists()
@@ -47,7 +49,7 @@ namespace Airgeddon.LanguageFactory
             try
             {
                 generator.GenerateFile(opts.Filename);
-                Console.Write($"Generated file {opts.Filename}");
+                ShowMessage($"Generated file {opts.Filename}");
                 return 0;
             }
             catch(Exception ex)
@@ -66,7 +68,14 @@ namespace Airgeddon.LanguageFactory
 
             try
             {
-                manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode);
+                var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode);
+                if (errors.Count > 0)
+                {
+                    var sb = new StringBuilder();
+                    foreach (var err in errors)
+                        sb.AppendLine(err);
+                    ShowError(sb.ToString());
+                }
                 return 0;
             }
             catch(Exception ex)

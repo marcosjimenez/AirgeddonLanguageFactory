@@ -13,13 +13,13 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="language_strings.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="img\airgeddon_icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

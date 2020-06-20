@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Airgeddon.LanguageFactory.Models
+﻿namespace Airgeddon.LanguageFactory.Models
 {
+    using System.Collections.Generic;
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Estilos de nombres", Justification = "<pendiente>")]
     public class TranslationFile
     {

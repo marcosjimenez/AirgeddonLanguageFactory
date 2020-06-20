@@ -1,19 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using GoogleTranslateFreeApi;
-using Airgeddon.LanguageFactory.Models;
-
-namespace Airgeddon.LanguageFactory
+﻿namespace Airgeddon.LanguageFactory
 {
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Collections.Generic;
+    using GoogleTranslateFreeApi;
+    using Airgeddon.LanguageFactory.Models;
+    using System.Text.Json;
+
     public class TranslationManager
     {
 
         private TranslationFile _translations;
-
+        private string _destinationFile = string.Empty;
         private readonly Dictionary<string, string> _languages;
 
         public TranslationManager()
@@ -35,15 +34,18 @@ namespace Airgeddon.LanguageFactory
         public void Initialize(string inputFile)
         {
             var text = File.ReadAllText(inputFile);
-            _translations = JsonConvert.DeserializeObject<TranslationFile>(text);
+            _translations = JsonSerializer.Deserialize<TranslationFile>(text);
+            _destinationFile = inputFile;
         }
 
-        public void AddTranslation(string referenceLanguage, string newLanguage, string isoCode)
+        public List<string> AddTranslation(string referenceLanguage, string newLanguage, string isoCode)
         {
+            var retVal = new List<string>();
 
             referenceLanguage = referenceLanguage.ToUpper();
             newLanguage = newLanguage.ToUpper();
 
+            // Use unknown_chipset as index and language check for all arrays.
             if (!_translations.unknown_chipset.Any(x => x.Language.ToUpper() == referenceLanguage))
                 throw new Exception($"Invalid reference language {referenceLanguage}");
 
@@ -52,12 +54,42 @@ namespace Airgeddon.LanguageFactory
 
             var isoReference = GetIsoFromLanguage(referenceLanguage);
 
-            var item = _translations.unknown_chipset.FirstOrDefault(x => x.Language.ToUpper() == referenceLanguage);
-            _translations.unknown_chipset.Add(new TranslationItem
+            foreach(var item in TranslationConstants.NoIndexWords)
             {
-                Language = newLanguage,
-                Text = TranslateText(item.Text, isoReference, isoCode)
-            });
+                AddTranslatedItemNoIndex(item);
+            }
+
+            void AddTranslatedItemNoIndex(string item) // Local func
+            {
+                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItem>;
+                var containedItem = type.FirstOrDefault(x => x.Language.ToUpper() == referenceLanguage);
+                if (containedItem == null)
+                    retVal.Add($"Cannot find {item} on json file");
+                else
+                    type.Add(new TranslationItem
+                    {
+                        Language = newLanguage,
+                        Text = TranslateText(containedItem.Text, isoReference, isoCode)
+                    });
+            }
+
+            try
+            { 
+                var text = JsonSerializer.Serialize(_translations, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                });
+
+                File.WriteAllText(_destinationFile, text);
+            }
+            catch(Exception ex)
+            {
+                retVal.Add(ex.Message);
+            }
+
+            return retVal;
+
         }
 
         /// <summary>
@@ -88,7 +120,6 @@ namespace Airgeddon.LanguageFactory
             return retVal;
 
         }
-
 
         private string GetIsoFromLanguage(string language)
             => _languages.FirstOrDefault(x => x.Key == language).Value;
