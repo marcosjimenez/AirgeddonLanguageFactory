@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Airgeddon.LanguageFactory": {
+      "commandName": "Project"
+    },
+    "Generate": {
+      "commandName": "Project",
+      "commandLineArgs": "generate -f translations.json"
+    }
+  }
+}
