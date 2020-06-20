@@ -65,10 +65,12 @@
 
             var manager = new TranslationManager();
             manager.Initialize(opts.Filename);
+            manager.ConsoleMessage = (x) => ShowMessage(x);
 
             try
             {
                 var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode);
+
                 if (errors.Count > 0)
                 {
                     var sb = new StringBuilder();
