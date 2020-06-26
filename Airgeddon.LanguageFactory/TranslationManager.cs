@@ -7,6 +7,7 @@
     using GoogleTranslateFreeApi;
     using Airgeddon.LanguageFactory.Models;
     using System.Text.Json;
+    using System.Text;
 
     public class TranslationManager
     {
@@ -19,18 +20,20 @@
 
         public TranslationManager()
         {
-            _languages = new Dictionary<string, string>();
-            _languages.Add("ENGLISH", "en");
-            _languages.Add("SPANISH", "es");
-            _languages.Add("FRENCH","fr");
-            _languages.Add("CATALAN","ca");
-            _languages.Add("PORTUGUESE","pt");
-            _languages.Add("RUSSIAN","ru");
-            _languages.Add("GREEK","el");
-            _languages.Add("ITALIAN","it");
-            _languages.Add("POLISH","pl");
-            _languages.Add("GERMAN","de");
-            _languages.Add("TURKISH","tr");
+            _languages = new Dictionary<string, string>
+            {
+                { "ENGLISH", "en" },
+                { "SPANISH", "es" },
+                { "FRENCH", "fr" },
+                { "CATALAN", "ca" },
+                { "PORTUGUESE", "pt" },
+                { "RUSSIAN", "ru" },
+                { "GREEK", "el" },
+                { "ITALIAN", "it" },
+                { "POLISH", "pl" },
+                { "GERMAN", "de" },
+                { "TURKISH", "tr" }
+            };
         }
 
         public void Initialize(string inputFile)
@@ -56,13 +59,19 @@
 
             var isoReference = GetIsoFromLanguage(referenceLanguage);
 
-            foreach(var item in TranslationConstants.NoIndexWords)
+
+            var noIndexText = GetNoIndexWords();
+            var translatedIndexText = TranslateText(noIndexText, isoReference, isoCode);
+            var translatedIndexItems = translatedIndexText.Split(Environment.NewLine);
+
+            for(int i = 0; i < TranslationConstants.NoIndexWords.Length; i++)
             {
-                ShowMessage($"Translating {item}");
-                AddTranslatedItemNoIndex(item);
+                AddTranslatedItemNoIndex(TranslationConstants.NoIndexWords[i], translatedIndexItems[i]);
             }
 
-            foreach(var item in TranslationConstants.IndexWords)
+
+            // Index words
+            foreach (var item in TranslationConstants.IndexWords)
             {
                 ShowMessage($"Translating {item}");
                 AddTranslatedItem(item);
@@ -86,20 +95,6 @@
                 }
             }
 
-            void AddTranslatedItemNoIndex(string item) // Local func
-            {
-                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItem>;
-                var containedItem = type.FirstOrDefault(x => x.Language.ToUpper() == referenceLanguage);
-                if (containedItem == null)
-                    retVal.Add($"Cannot find {item} on json file");
-                else
-                    type.Add(new TranslationItem
-                    {
-                        Language = newLanguage,
-                        Text = TranslateText(containedItem.Text, isoReference, isoCode)
-                    });
-            }
-
             try
             { 
                 var text = JsonSerializer.Serialize(_translations, new JsonSerializerOptions
@@ -117,7 +112,49 @@
 
             return retVal;
 
+            // Local functions
+
+            string GetNoIndexWords()
+            {
+                // No index words
+                var sb = new StringBuilder();
+                foreach (var item in TranslationConstants.NoIndexWords)
+                {
+                    ShowMessage($"Translating {item}");
+                    sb.AppendLine(GetItemNoIndex(item));
+                }
+                return sb.ToString();
+            }
+
+            string GetItemNoIndex(string item)
+            {
+                var itemText = string.Empty;
+                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItem>;
+                var containedItem = type.FirstOrDefault(x => x.Language.ToUpper() == referenceLanguage);
+                if (containedItem == null)
+                    retVal.Add($"Cannot find {item} on json file");
+                else
+                    itemText = containedItem.Text;
+
+                return itemText;
+            }
+
+            void AddTranslatedItemNoIndex(string item, string translatedText) // Local func
+            {
+                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItem>;
+                var containedItem = type.FirstOrDefault(x => x.Language.ToUpper() == referenceLanguage);
+                if (containedItem == null)
+                    retVal.Add($"Cannot find {item} on json file");
+                else
+                    type.Add(new TranslationItem
+                    {
+                        Language = newLanguage,
+                        Text = translatedText
+                    });
+            }
+
         }
+
 
         /// <summary>
         /// TODO: Refactor this urgently, use a HTML parser

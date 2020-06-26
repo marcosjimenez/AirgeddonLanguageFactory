@@ -75,7 +75,7 @@ namespace GoogleTranslateFreeApi
 		/// <summary>
 		/// Requests timeout
 		/// </summary>
-		public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(10);
+		public TimeSpan TimeOut { get; set; } = TimeSpan.FromSeconds(30);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="GoogleKeyTokenGenerator"/> class
