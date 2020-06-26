@@ -8,38 +8,31 @@
     using Airgeddon.LanguageFactory.Models;
     using System.Text.Json;
     using System.Text;
+    using Airgeddon.LanguageFactory.Helpers;
 
     public class TranslationManager
     {
-
+        private const string ConfigFile = "config.json";
         private TranslationFile _translations;
+        private TranslationManagerConfig _config;
         private string _destinationFile = string.Empty;
-        private readonly Dictionary<string, string> _languages;
 
         public Action<string> ConsoleMessage = null;
 
         public TranslationManager()
         {
-            _languages = new Dictionary<string, string>
-            {
-                { "ENGLISH", "en" },
-                { "SPANISH", "es" },
-                { "FRENCH", "fr" },
-                { "CATALAN", "ca" },
-                { "PORTUGUESE", "pt" },
-                { "RUSSIAN", "ru" },
-                { "GREEK", "el" },
-                { "ITALIAN", "it" },
-                { "POLISH", "pl" },
-                { "GERMAN", "de" },
-                { "TURKISH", "tr" }
-            };
+
+
+
         }
 
         public void Initialize(string inputFile)
         {
-            var text = File.ReadAllText(inputFile);
-            _translations = JsonSerializer.Deserialize<TranslationFile>(text);
+            _config = Path.Combine(Directory.GetCurrentDirectory(), ConfigFile)
+                .FromJson<TranslationManagerConfig>();
+
+            _translations = inputFile.FromJson<TranslationFile>();
+
             _destinationFile = inputFile;
         }
 
@@ -59,7 +52,6 @@
 
             var isoReference = GetIsoFromLanguage(referenceLanguage);
 
-
             var noIndexText = GetNoIndexWords();
             var translatedIndexText = TranslateText(noIndexText, isoReference, isoCode);
             var translatedIndexItems = translatedIndexText.Split(Environment.NewLine);
@@ -68,7 +60,6 @@
             {
                 AddTranslatedItemNoIndex(TranslationConstants.NoIndexWords[i], translatedIndexItems[i]);
             }
-
 
             // Index words
             foreach (var item in TranslationConstants.IndexWords)
@@ -96,14 +87,8 @@
             }
 
             try
-            { 
-                var text = JsonSerializer.Serialize(_translations, new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                });
-
-                File.WriteAllText(_destinationFile, text);
+            {
+                _translations.ToJson(_destinationFile);
             }
             catch(Exception ex)
             {
@@ -175,7 +160,7 @@
         }
 
         private string GetIsoFromLanguage(string language)
-            => _languages.FirstOrDefault(x => x.Key == language).Value;
+            => _config.Languages.FirstOrDefault(x => x.Key == language).Value;
 
         private void ShowMessage(string message) => ConsoleMessage?.Invoke(message);
 
