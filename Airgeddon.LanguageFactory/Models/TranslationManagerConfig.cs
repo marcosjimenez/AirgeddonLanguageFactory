@@ -8,5 +8,7 @@ namespace Airgeddon.LanguageFactory.Models
     {
         public Dictionary<string, string> Languages { get; set; }
 
+        public string LastTranslatedIndexWord { get; set; }
+        public string LastTranslatedIndexWordIndex { get; set; }
     }
 }

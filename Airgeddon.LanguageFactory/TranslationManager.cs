@@ -9,6 +9,8 @@
     using System.Text.Json;
     using System.Text;
     using Airgeddon.LanguageFactory.Helpers;
+    using System.Net.Http;
+    using Airgeddon.LanguageFactory.Infrastructure.Exceptions;
 
     public class TranslationManager
     {
@@ -19,17 +21,9 @@
 
         public Action<string> ConsoleMessage = null;
 
-        public TranslationManager()
-        {
-
-
-
-        }
-
         public void Initialize(string inputFile)
         {
-            _config = Path.Combine(Directory.GetCurrentDirectory(), ConfigFile)
-                .FromJson<TranslationManagerConfig>();
+            _config = GetConfig();
 
             _translations = inputFile.FromJson<TranslationFile>();
 
@@ -56,6 +50,7 @@
             var translatedIndexText = TranslateText(noIndexText, isoReference, isoCode);
             var translatedIndexItems = translatedIndexText.Split(Environment.NewLine);
 
+            // No index words
             for(int i = 0; i < TranslationConstants.NoIndexWords.Length; i++)
             {
                 AddTranslatedItemNoIndex(TranslationConstants.NoIndexWords[i], translatedIndexItems[i]);
@@ -68,23 +63,7 @@
                 AddTranslatedItem(item);
             }
 
-            void AddTranslatedItem(string item) // Local func
-            {
-                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItemWithIndex>;
-                var containedItems = type.Where(x => x.Language.ToUpper() == referenceLanguage).ToList();
-                if (containedItems == null)
-                    retVal.Add($"Cannot find {item} on json file");
-                else
-                {
-                    foreach(var contained in containedItems)
-                        type.Add(new TranslationItemWithIndex
-                        {
-                            Language = newLanguage,
-                            Text = TranslateText(contained.Text, isoReference, isoCode),
-                            Index = contained.Index
-                        });
-                }
-            }
+            _config.ToJson(GetConfigFile());
 
             try
             {
@@ -98,6 +77,39 @@
             return retVal;
 
             // Local functions
+
+            void AddTranslatedItem(string item)
+            {
+                var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItemWithIndex>;
+                var containedItems = type.Where(x => x.Language.ToUpper() == referenceLanguage).ToList();
+                if (containedItems == null)
+                    retVal.Add($"Cannot find {item} on json file");
+                else
+                {
+                    foreach (var contained in containedItems)
+                    {
+                        try
+                        {
+                            type.Add(new TranslationItemWithIndex
+                            {
+                                Language = newLanguage,
+                                Text = TranslateText(contained.Text, isoReference, isoCode),
+                                Index = contained.Index
+                            });
+                            _config.LastTranslatedIndexWord = contained.Text;
+                            _config.LastTranslatedIndexWordIndex = contained.Index;
+                        }
+                        catch (HttpRequestException ex)
+                        {
+                            throw new TranslationLimitReachedException(ex.Message);
+                        }
+                        catch
+                        {
+                            throw;
+                        }
+                    }
+                }
+            }
 
             string GetNoIndexWords()
             {
@@ -164,5 +176,8 @@
 
         private void ShowMessage(string message) => ConsoleMessage?.Invoke(message);
 
+        private string GetConfigFile() => Path.Combine(Directory.GetCurrentDirectory(), ConfigFile);
+
+        private TranslationManagerConfig GetConfig() => GetConfigFile().FromJson<TranslationManagerConfig>();
     }
 }
