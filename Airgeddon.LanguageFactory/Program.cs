@@ -69,7 +69,7 @@
 
             try
             {
-                var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode);
+                var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode, opts.Continue);
 
                 if (errors.Count > 0)
                 {

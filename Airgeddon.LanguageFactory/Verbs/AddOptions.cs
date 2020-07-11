@@ -11,5 +11,8 @@ namespace Airgeddon.LanguageFactory.Verbs
         public string Language { get; set; }
         [Option('i', "iso", HelpText = "ISO-639-1 Language code")]
         public string IsoCode { get; set; }
+        [Option('c', "continue", HelpText = "Continue the las generation, LastTranslatedIndexWord and LastTranslatedIndexWordIndex needed on config.json")]
+        public bool Continue { get; set; }
+
     }
 }

@@ -9,7 +9,7 @@
     },
     "Add": {
       "commandName": "Project",
-      "commandLineArgs": "add -f langs.json -r SPANISH -l ARABIC -i ar"
+      "commandLineArgs": "add -f langs.json -r SPANISH -l ARABIC -i ar -c true"
     }
   }
 }

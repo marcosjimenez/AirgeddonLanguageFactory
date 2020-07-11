@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="language_strings.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

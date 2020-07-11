@@ -21,7 +21,7 @@ namespace Airgeddon.LanguageFactory.Helpers
             return retVal ?? default;
         }
 
-        public static void ToJson<T>(this T source, string file) where T : class
+        public static void ToJsonFile<T>(this T source, string file) where T : class
         {
             if (source is null)
             {

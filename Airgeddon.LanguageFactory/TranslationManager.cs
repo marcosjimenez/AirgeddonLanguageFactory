@@ -30,7 +30,7 @@
             _destinationFile = inputFile;
         }
 
-        public List<string> AddTranslation(string referenceLanguage, string newLanguage, string isoCode)
+        public List<string> AddTranslation(string referenceLanguage, string newLanguage, string isoCode, bool continueGeneration)
         {
             var retVal = new List<string>();
 
@@ -41,33 +41,57 @@
             if (!_translations.unknown_chipset.Any(x => x.Language.ToUpper() == referenceLanguage))
                 throw new Exception($"Invalid reference language {referenceLanguage}");
 
-            if (_translations.unknown_chipset.Any(x => x.Language.ToUpper() == newLanguage))
+            if (!continueGeneration && _translations.unknown_chipset.Any(x => x.Language.ToUpper() == newLanguage))
                 throw new Exception($"New language {newLanguage} already exists");
 
             var isoReference = GetIsoFromLanguage(referenceLanguage);
 
-            var noIndexText = GetNoIndexWords();
-            var translatedIndexText = TranslateText(noIndexText, isoReference, isoCode);
-            var translatedIndexItems = translatedIndexText.Split(Environment.NewLine);
-
-            // No index words
-            for(int i = 0; i < TranslationConstants.NoIndexWords.Length; i++)
+            if (!continueGeneration)
             {
-                AddTranslatedItemNoIndex(TranslationConstants.NoIndexWords[i], translatedIndexItems[i]);
+                var noIndexText = GetNoIndexWords();
+                var translatedIndexText = TranslateText(noIndexText, isoReference, isoCode);
+                var translatedIndexItems = translatedIndexText.Split(Environment.NewLine);
+
+                // No index words
+                for (int i = 0; i < TranslationConstants.NoIndexWords.Length; i++)
+                {
+                    AddTranslatedItemNoIndex(TranslationConstants.NoIndexWords[i], translatedIndexItems[i]);
+                }
             }
 
             // Index words
-            foreach (var item in TranslationConstants.IndexWords)
+            var wordList = TranslationConstants.IndexWords.ToList();
+            foreach (var item in wordList)
             {
                 ShowMessage($"Translating {item}");
-                AddTranslatedItem(item);
+                try
+                {
+                    var containedIndex = _config.LastTranslatedIndexWordIndex == null ? -1 : int.Parse(_config.LastTranslatedIndexWordIndex);
+                    var wordIndex = wordList.IndexOf(item);
+
+
+                    if (continueGeneration && wordIndex <= _config.LastIndex)
+                        continue;
+
+                        AddTranslatedItem(item, containedIndex);
+                        _config.LastIndex = wordIndex;
+                    
+                }
+                catch(TranslationLimitReachedException limitEx)
+                {
+                    ShowMessage($"Limit reached on {item}: {limitEx}");
+                }
+                catch(Exception ex)
+                {
+                    ShowMessage($"Error: {ex.Message}");
+                }
             }
 
-            _config.ToJson(GetConfigFile());
+            _config.ToJsonFile(GetConfigFile());
 
             try
             {
-                _translations.ToJson(_destinationFile);
+                _translations.ToJsonFile(_destinationFile);
             }
             catch(Exception ex)
             {
@@ -78,7 +102,7 @@
 
             // Local functions
 
-            void AddTranslatedItem(string item)
+            void AddTranslatedItem(string item, int continueOnIndex = -1)
             {
                 var type = _translations.GetType().GetProperty(item).GetValue(_translations, null) as List<TranslationItemWithIndex>;
                 var containedItems = type.Where(x => x.Language.ToUpper() == referenceLanguage).ToList();
@@ -88,8 +112,12 @@
                 {
                     foreach (var contained in containedItems)
                     {
+                        ShowMessage($"Translating contained: {contained.Text}");
                         try
                         {
+                            if ((continueOnIndex >= 0) && (int.Parse(contained.Index) <= continueOnIndex))
+                                continue;
+
                             type.Add(new TranslationItemWithIndex
                             {
                                 Language = newLanguage,
