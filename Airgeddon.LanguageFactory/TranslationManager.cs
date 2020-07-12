@@ -61,6 +61,7 @@
 
             // Index words
             var wordList = TranslationConstants.IndexWords.ToList();
+            var completed = true;
             foreach (var item in wordList)
             {
                 ShowMessage($"Translating {item}");
@@ -70,20 +71,34 @@
                     var wordIndex = wordList.IndexOf(item);
 
 
-                    if (continueGeneration && wordIndex <= _config.LastIndex)
+                    if (continueGeneration && wordIndex < _config.LastIndex)
                         continue;
 
-                        AddTranslatedItem(item, containedIndex);
-                        _config.LastIndex = wordIndex;
-                    
+                    AddTranslatedItem(item, containedIndex);
+                    _config.LastIndex = wordIndex;
+
                 }
-                catch(TranslationLimitReachedException limitEx)
+                catch (TranslationLimitReachedException limitEx)
                 {
                     ShowMessage($"Limit reached on {item}: {limitEx}");
+                    completed = false;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ShowMessage($"Error: {ex.Message}");
+                    completed = false;
+                }
+                finally
+                {
+                    ShowMessage(Environment.NewLine);
+                    if (completed)
+                    {
+                        ShowMessage($"Generation completed. Last index: {_config.LastIndex}");
+                    }
+                    else
+                    {
+                        retVal.Add($"Generation interrupted at index: {_config.LastIndex}");
+                    }
                 }
             }
 

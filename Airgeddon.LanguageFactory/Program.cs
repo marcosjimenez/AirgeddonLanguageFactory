@@ -1,6 +1,7 @@
 ﻿namespace Airgeddon.LanguageFactory
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Text;
     using Airgeddon.LanguageFactory.Verbs;
@@ -61,30 +62,72 @@
 
         static int RunAdd(AddOptions opts)
         {
+            var retVal = 0;
             CheckInputFileExists();
 
             var manager = new TranslationManager();
             manager.Initialize(opts.Filename);
             manager.ConsoleMessage = (x) => ShowMessage(x);
 
-            try
+            var stopGeneration = false;
+            while(!stopGeneration)
             {
-                var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode, opts.Continue);
-
-                if (errors.Count > 0)
+                try
                 {
-                    var sb = new StringBuilder();
-                    foreach (var err in errors)
-                        sb.AppendLine(err);
-                    ShowError(sb.ToString());
+                    var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode, opts.Continue);
+
+                    if (errors.Count == 0)
+                    {
+                        retVal = 0;
+                        stopGeneration = true;
+                    }
+                    else
+                    {
+                        var sb = new StringBuilder();
+                        foreach (var err in errors)
+                            sb.AppendLine(err);
+                    
+                        ShowError(sb.ToString());
+                        // Wait 100 seconds
+                        stopGeneration = (!WaitSeconds(100));
+                        retVal = 1;
+                    }
                 }
-                return 0;
+                catch(Exception ex)
+                {
+                    stopGeneration = true;
+                    ShowError(ex.Message);
+                    retVal = 1;
+                }
             }
-            catch(Exception ex)
-            {
-                ShowError(ex.Message);
-                return 1;
-            }
+            return retVal;
         }
+
+        private static bool WaitSeconds(int seconds)
+        {
+            var retVal = true;
+            var totalMilliseconds = seconds * 1000;
+
+            Console.TreatControlCAsInput = true;
+            Console.CursorVisible = false;
+
+            var posY = Console.CursorTop;
+
+            var watch = new Stopwatch();
+            watch.Start();
+
+            while(watch.ElapsedMilliseconds < totalMilliseconds)
+            {
+                Console.SetCursorPosition(0, posY);
+                ShowMessage($"Waiting {watch.ElapsedMilliseconds / 1000} / {seconds} (secs)", ConsoleColor.DarkYellow);
+            }
+            
+            Console.CursorVisible = true;
+
+            watch.Stop();
+
+            return retVal;
+        }
+
     }
 }
