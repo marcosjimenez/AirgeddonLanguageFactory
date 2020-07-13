@@ -4,17 +4,20 @@
     using System.IO;
     using System.Linq;
     using System.Collections.Generic;
+    using System.Text;
+    using System.Net.Http;
     using GoogleTranslateFreeApi;
     using Airgeddon.LanguageFactory.Models;
-    using System.Text.Json;
-    using System.Text;
     using Airgeddon.LanguageFactory.Helpers;
-    using System.Net.Http;
     using Airgeddon.LanguageFactory.Infrastructure.Exceptions;
+    using Antlr4.StringTemplate;
 
     public class TranslationManager
     {
         private const string ConfigFile = "config.json";
+        private const string SH_File_Template = "template.sh";
+        private const string PendingOfTranslation = "\\${pending_of_translation} ";
+
         private TranslationFile _translations;
         private TranslationManagerConfig _config;
         private string _destinationFile = string.Empty;
@@ -136,7 +139,7 @@
                             type.Add(new TranslationItemWithIndex
                             {
                                 Language = newLanguage,
-                                Text = TranslateText(contained.Text, isoReference, isoCode),
+                                Text = string.Concat(PendingOfTranslation, TranslateText(contained.Text, isoReference, isoCode)),
                                 Index = contained.Index
                             });
                             _config.LastTranslatedIndexWord = contained.Text;
@@ -195,6 +198,26 @@
 
         }
 
+        public bool GenerateScript(string destinationFilename, string version)
+        {
+            bool retVal = true;
+
+            if (!File.Exists(SH_File_Template))
+                throw new FileNotFoundException(SH_File_Template);
+
+            var template = File.ReadAllText(SH_File_Template);
+            var engine = new Template(template, '¬', '¬');
+
+            engine.Add("Data", new
+            {
+                Version = version,
+                Translations = _translations
+            });
+
+            File.WriteAllText(destinationFilename, engine.Render());
+
+            return retVal;
+        }
 
         /// <summary>
         /// TODO: Refactor this urgently, use a HTML parser

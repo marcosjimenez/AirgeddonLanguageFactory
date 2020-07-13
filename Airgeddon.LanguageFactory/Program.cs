@@ -1,6 +1,7 @@
 ﻿namespace Airgeddon.LanguageFactory
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
@@ -13,10 +14,11 @@
         static int Main(string[] args)
         {
 
-            return Parser.Default.ParseArguments<GenerateOptions, AddOptions>(args)
+            return Parser.Default.ParseArguments<GenerateOptions, AddOptions, CreateScriptOption>(args)
                .MapResult(
                  (GenerateOptions opts) => RunGenerate(opts),
                  (AddOptions opts) => RunAdd(opts),
+                 (CreateScriptOption opts) => RunCreateScript(opts),
                  errs => 1);
         }
 
@@ -70,37 +72,69 @@
             manager.ConsoleMessage = (x) => ShowMessage(x);
 
             var stopGeneration = false;
+            var generateScript = false;
             while(!stopGeneration)
             {
+                List<string> errors = new List<string>();
                 try
                 {
-                    var errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode, opts.Continue);
-
-                    if (errors.Count == 0)
-                    {
-                        retVal = 0;
-                        stopGeneration = true;
-                    }
-                    else
-                    {
-                        var sb = new StringBuilder();
-                        foreach (var err in errors)
-                            sb.AppendLine(err);
-                    
-                        ShowError(sb.ToString());
-                        // Wait 100 seconds
-                        stopGeneration = (!WaitSeconds(100));
-                        retVal = 1;
-                    }
+                    errors = manager.AddTranslation(opts.Reference, opts.Language, opts.IsoCode, opts.Continue);
                 }
                 catch(Exception ex)
                 {
                     stopGeneration = true;
-                    ShowError(ex.Message);
+                    generateScript = false;
                     retVal = 1;
+                    ShowError(ex.Message);
+                }
+
+                if (errors.Count == 0)
+                {
+                    retVal = 0;
+                    stopGeneration = true;
+                    generateScript = true;
+                }
+                else
+                {
+                    ShowErrors(errors);
+                    // Wait 100 seconds
+                    stopGeneration = (!WaitSeconds(100));
+                    retVal = 1;
+                    generateScript = false;
                 }
             }
+
             return retVal;
+        }
+
+        static int RunCreateScript(CreateScriptOption opts)
+        {
+            var manager = new TranslationManager
+            {
+                ConsoleMessage = (x) => ShowMessage(x)
+            };
+            manager.Initialize(opts.Filename);
+
+            ShowMessage($"Generating script {opts.ScriptFilename}");
+
+            var retVal = RunScriptCreation(manager, opts); // TODO: use on Add translation too
+
+            if (retVal == 0)
+                ShowMessage("Script generated.");
+
+            return retVal;
+        }
+
+        static int RunScriptCreation(TranslationManager manager, CreateScriptOption opts)
+            => manager?.GenerateScript(opts.ScriptFilename, opts.Version) == true ? 0 : 1;
+
+        private static void ShowErrors(List<string> errors)
+        {
+            var sb = new StringBuilder();
+            foreach (var err in errors)
+                sb.AppendLine(err);
+
+            ShowError(sb.ToString());
         }
 
         private static bool WaitSeconds(int seconds)

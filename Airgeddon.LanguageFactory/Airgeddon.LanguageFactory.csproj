@@ -11,16 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="template.sh" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
+    <PackageReference Include="StringTemplate4" Version="4.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="language_strings.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="img\airgeddon_icon.png">
@@ -31,6 +33,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GoogleTranslateFreeApi\GoogleTranslateFreeApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="template.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

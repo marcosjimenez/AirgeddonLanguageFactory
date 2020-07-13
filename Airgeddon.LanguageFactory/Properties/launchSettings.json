@@ -10,6 +10,10 @@
     "Add": {
       "commandName": "Project",
       "commandLineArgs": "add -f langs.json -r SPANISH -l ESPERANTO -i eo -c"
+    },
+    "CreateScript": {
+      "commandName": "Project",
+      "commandLineArgs": "create -f langs.json -n language_generated.sh"
     }
   }
 }
