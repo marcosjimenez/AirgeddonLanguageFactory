@@ -64,43 +64,56 @@
 
             // Index words
             var wordList = TranslationConstants.IndexWords.ToList();
-            var completed = true;
+            bool continueNext = true;
+            bool haveErrors = false;
             foreach (var item in wordList)
             {
+
+                if (!continueNext)
+                    break;
+
                 ShowMessage($"Translating {item}");
                 try
                 {
-                    var containedIndex = _config.LastTranslatedIndexWordIndex == null ? -1 : int.Parse(_config.LastTranslatedIndexWordIndex);
+                    if (string.IsNullOrWhiteSpace(_config.LastTranslatedIndexWordIndex) || !int.TryParse(_config.LastTranslatedIndexWordIndex, out int containedIndex))
+                    {
+                        containedIndex = -1;
+                    }
                     var wordIndex = wordList.IndexOf(item);
-
 
                     if (continueGeneration && wordIndex < _config.LastIndex)
                         continue;
 
                     AddTranslatedItem(item, containedIndex);
                     _config.LastIndex = wordIndex;
-
                 }
                 catch (TranslationLimitReachedException limitEx)
                 {
                     ShowMessage($"Limit reached on {item}: {limitEx}");
-                    completed = false;
+                    haveErrors = true;
+                    continueNext = false;
                 }
                 catch (Exception ex)
                 {
                     ShowMessage($"Error: {ex.Message}");
-                    completed = false;
+                    haveErrors = true;
+                    continueNext = true;
                 }
                 finally
                 {
                     ShowMessage(Environment.NewLine);
-                    if (completed)
+                    if (haveErrors)
                     {
-                        ShowMessage($"Generation completed. Last index: {_config.LastIndex}");
+                        retVal.Add($"Generation interrupted at index: {_config.LastIndex}");
+                        continueNext = false;
                     }
                     else
                     {
-                        retVal.Add($"Generation interrupted at index: {_config.LastIndex}");
+                        if (_config.LastIndex == wordList.Count)
+                        { 
+                            ShowMessage($"Generation completed. Last index: {_config.LastIndex}");
+                            continueNext = false;
+                        }
                     }
                 }
             }
@@ -234,7 +247,23 @@
             Language to = GoogleTranslator.GetLanguageByISO(destination);
 
             TranslationResult result = translator.TranslateLiteAsync(text, from, to).GetAwaiter().GetResult();
-            return result.MergedTranslation;
+
+            var translated = FixTranslation(result.MergedTranslation);
+
+            return translated;
+        }
+
+        private string FixTranslation(string translation)
+        {
+            string retVal = translation;
+
+            foreach(var item in _config.TranslationFixes)
+            {
+                foreach (var fix in item.Find)
+                    retVal = retVal.Replace(fix, item.ReplaceWith);
+            }
+
+            return retVal;
         }
 
         private string GetIsoFromLanguage(string language)

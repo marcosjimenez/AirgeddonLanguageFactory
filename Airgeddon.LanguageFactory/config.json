@@ -13,5 +13,15 @@
     "TURKISH": "tr"
   },
   "LastTranslatedIndexWord": "",
-  "LastTranslatedIndexWordIndex": ""
+  "LastTranslatedIndexWordIndex": "",
+  "TranslationFixes": [
+    {
+      "Find": [ "$ {", "${ ", "$ { " ],
+      "ReplaceWith": "${"
+    },
+    {
+      "Find": "\\ \"",
+      "ReplaceWith":  "\\\""
+    }
+  ]
 }

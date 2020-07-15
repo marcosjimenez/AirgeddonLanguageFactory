@@ -9,7 +9,7 @@
     },
     "Add": {
       "commandName": "Project",
-      "commandLineArgs": "add -f langs.json -r SPANISH -l ESPERANTO -i eo -c"
+      "commandLineArgs": "add -f translations.json -r SPANISH -l Arabic -i ar -c"
     },
     "CreateScript": {
       "commandName": "Project",

@@ -75,6 +75,7 @@
             var generateScript = false;
             while(!stopGeneration)
             {
+                ShowMessage("Starting generation.", ConsoleColor.DarkYellow);
                 List<string> errors = new List<string>();
                 try
                 {
@@ -85,7 +86,7 @@
                     stopGeneration = true;
                     generateScript = false;
                     retVal = 1;
-                    ShowError(ex.Message);
+                    errors.Add(ex.Message);
                 }
 
                 if (errors.Count == 0)
@@ -99,6 +100,7 @@
                     ShowErrors(errors);
                     // Wait 100 seconds
                     stopGeneration = (!WaitSeconds(100));
+                    opts.Continue = true;
                     retVal = 1;
                     generateScript = false;
                 }
@@ -150,7 +152,7 @@
             var watch = new Stopwatch();
             watch.Start();
 
-            while(watch.ElapsedMilliseconds < totalMilliseconds)
+            while(watch.ElapsedMilliseconds <= totalMilliseconds)
             {
                 Console.SetCursorPosition(0, posY);
                 ShowMessage($"Waiting {watch.ElapsedMilliseconds / 1000} / {seconds} (secs)", ConsoleColor.DarkYellow);

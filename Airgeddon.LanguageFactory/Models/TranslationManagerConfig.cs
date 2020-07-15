@@ -11,6 +11,6 @@ namespace Airgeddon.LanguageFactory.Models
         public int LastIndex { get; set; }
         public string LastTranslatedIndexWord { get; set; }
         public string LastTranslatedIndexWordIndex { get; set; }
-
+        public IEnumerable<TranslationFix> TranslationFixes { get; set; }
     }
 }

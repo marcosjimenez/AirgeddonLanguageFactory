@@ -87,7 +87,7 @@ namespace GoogleTranslateFreeApi
 		/// <returns>Is it available language or not</returns>
 		public static bool IsLanguageSupported(Language language)
 		{
-			if (language.Equals(Language.Auto))
+			if (language == null || language.Equals(Language.Auto))
 				return true;
 			
 			return LanguagesSupported.Contains(language) ||
