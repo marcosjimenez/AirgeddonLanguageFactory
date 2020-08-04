@@ -66,6 +66,7 @@
             var wordList = TranslationConstants.IndexWords.ToList();
             bool continueNext = true;
             bool haveErrors = false;
+            bool useContinuation = continueGeneration;
             foreach (var item in wordList)
             {
 
@@ -75,16 +76,24 @@
                 ShowMessage($"Translating {item}");
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(_config.LastTranslatedIndexWordIndex) || !int.TryParse(_config.LastTranslatedIndexWordIndex, out int containedIndex))
-                    {
-                        containedIndex = -1;
-                    }
                     var wordIndex = wordList.IndexOf(item);
 
                     if (continueGeneration && wordIndex < _config.LastIndex)
                         continue;
 
+                    int containedIndex = -1;
+                    if (useContinuation)
+                    { 
+                        if (string.IsNullOrWhiteSpace(_config.LastTranslatedIndexWordIndex) || 
+                            !int.TryParse(_config.LastTranslatedIndexWordIndex, out containedIndex))
+                        {
+                            containedIndex = -1;
+                        }
+                        useContinuation = false;
+                    }
+
                     AddTranslatedItem(item, containedIndex);
+                    
                     _config.LastIndex = wordIndex;
                 }
                 catch (TranslationLimitReachedException limitEx)
@@ -143,7 +152,7 @@
                 {
                     foreach (var contained in containedItems)
                     {
-                        ShowMessage($"Translating contained: {contained.Text}");
+                        ShowMessage($"Translating contained at {contained.Index}: {contained.Text}");
                         try
                         {
                             if ((continueOnIndex >= 0) && (int.Parse(contained.Index) <= continueOnIndex))
