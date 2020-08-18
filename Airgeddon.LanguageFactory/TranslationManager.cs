@@ -78,17 +78,22 @@
                 {
                     var wordIndex = wordList.IndexOf(item);
 
-                    if (continueGeneration && wordIndex < _config.LastIndex)
+                    if (continueGeneration && wordIndex <= _config.LastIndex)
                         continue;
 
                     int containedIndex = -1;
                     if (useContinuation)
-                    { 
-                        if (string.IsNullOrWhiteSpace(_config.LastTranslatedIndexWordIndex) || 
+                    {
+                        if (string.IsNullOrWhiteSpace(_config.LastTranslatedIndexWordIndex) ||
                             !int.TryParse(_config.LastTranslatedIndexWordIndex, out containedIndex))
                         {
                             containedIndex = -1;
                         }
+                        else
+                        {
+                            containedIndex++;
+                        }
+
                         useContinuation = false;
                     }
 
@@ -155,7 +160,7 @@
                         ShowMessage($"Translating contained at {contained.Index}: {contained.Text}");
                         try
                         {
-                            if ((continueOnIndex >= 0) && (int.Parse(contained.Index) <= continueOnIndex))
+                            if ((continueOnIndex >= 0) && (int.Parse(contained.Index) < continueOnIndex))
                                 continue;
 
                             type.Add(new TranslationItemWithIndex
@@ -230,13 +235,25 @@
             var template = File.ReadAllText(SH_File_Template);
             var engine = new Template(template, '¬', '¬');
 
+            //Prepare translations
+            //TODO: Add parameters on related command on sorting, and filtering.
+            _translations.aircrack_texts = _translations.aircrack_texts.OrderBy(x => x.Index).ToList();
+            _translations.arr = _translations.arr.OrderBy(x => x.Index).ToList();
+            _translations.asleap_texts = _translations.asleap_texts.OrderBy(x => x.Index).ToList();
+            _translations.et_misc_texts = _translations.et_misc_texts.OrderBy(x => x.Index).ToList();
+            _translations.footer_texts = _translations.footer_texts.OrderBy(x => x.Index).ToList();
+            _translations.hashcat_texts = _translations.hashcat_texts.OrderBy(x => x.Index).ToList();
+            _translations.jtr_texts = _translations.jtr_texts.OrderBy(x => x.Index).ToList();
+            _translations.wps_texts = _translations.wps_texts.OrderBy(x => x.Index).ToList();
+
             engine.Add("Data", new
             {
                 Version = version,
                 Translations = _translations
             });
 
-            File.WriteAllText(destinationFilename, engine.Render());
+            var renderedText = engine.Render();
+            File.WriteAllText(destinationFilename, renderedText);
 
             return retVal;
         }

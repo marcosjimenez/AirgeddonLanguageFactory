@@ -13,7 +13,7 @@
     },
     "CreateScript": {
       "commandName": "Project",
-      "commandLineArgs": "create -f langs.json -n language_generated.sh"
+      "commandLineArgs": "create -f translations.json -n language_generated.sh"
     }
   }
 }

@@ -133,8 +133,10 @@
         private static void ShowErrors(List<string> errors)
         {
             var sb = new StringBuilder();
-            foreach (var err in errors)
+            foreach (string err in errors)
+            {
                 sb.AppendLine(err);
+            }
 
             ShowError(sb.ToString());
         }
