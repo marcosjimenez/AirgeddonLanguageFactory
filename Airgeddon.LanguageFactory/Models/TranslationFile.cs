@@ -1,6 +1,7 @@
 ﻿namespace Airgeddon.LanguageFactory.Models
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Estilos de nombres", Justification = "<pendiente>")]
     public class TranslationFile
@@ -15,6 +16,7 @@
         public List<TranslationItem> docker_image { get; set; }
         public List<TranslationItemWithIndex> et_misc_texts { get; set; }
         public List<TranslationItemWithIndex> wps_texts { get; set; }
+        public List<TranslationItemWithIndex> wep_texts { get; set; }
         public List<TranslationItemWithIndex> asleap_texts { get; set; }
         public List<TranslationItemWithIndex> jtr_texts { get; set; }
         public List<TranslationItemWithIndex> hashcat_texts { get; set; }
@@ -43,5 +45,20 @@
             footer_texts = new List<TranslationItemWithIndex>();
             arr = new List<TranslationItemWithIndex>();
         }
+
+        public void SortIndexItems()
+        {
+
+            aircrack_texts = aircrack_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            arr = arr.OrderBy(x => int.Parse(x.Index)).ToList();
+            asleap_texts = asleap_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            et_misc_texts = et_misc_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            enterprise_texts = enterprise_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            footer_texts = footer_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            hashcat_texts = hashcat_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            jtr_texts = jtr_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+            wps_texts = wps_texts.OrderBy(x => int.Parse(x.Index)).ToList();
+        }
+
     }
 }

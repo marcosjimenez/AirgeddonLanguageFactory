@@ -11,6 +11,8 @@
     using Airgeddon.LanguageFactory.Helpers;
     using Airgeddon.LanguageFactory.Infrastructure.Exceptions;
     using Antlr4.StringTemplate;
+    using System.Runtime.CompilerServices;
+    using System.Reflection.Metadata.Ecma335;
 
     public class TranslationManager
     {
@@ -236,23 +238,66 @@
             var engine = new Template(template, '¬', '¬');
 
             //Prepare translations
-            //TODO: Add parameters on related command on sorting, and filtering.
-            _translations.aircrack_texts = _translations.aircrack_texts.OrderBy(x => x.Index).ToList();
-            _translations.arr = _translations.arr.OrderBy(x => x.Index).ToList();
-            _translations.asleap_texts = _translations.asleap_texts.OrderBy(x => x.Index).ToList();
-            _translations.et_misc_texts = _translations.et_misc_texts.OrderBy(x => x.Index).ToList();
-            _translations.footer_texts = _translations.footer_texts.OrderBy(x => x.Index).ToList();
-            _translations.hashcat_texts = _translations.hashcat_texts.OrderBy(x => x.Index).ToList();
-            _translations.jtr_texts = _translations.jtr_texts.OrderBy(x => x.Index).ToList();
-            _translations.wps_texts = _translations.wps_texts.OrderBy(x => x.Index).ToList();
+            _translations.SortIndexItems();
+
+            StringBuilder sb = new StringBuilder();
+            string CreateIndexString(List<TranslationItemWithIndex> array, string name)
+            {
+                sb.Clear();
+                string lastIndex = string.Empty;
+                if (array == null)
+                    return sb.ToString();
+
+                foreach (var item in array)
+                {
+                    if (!string.IsNullOrEmpty(lastIndex) && !lastIndex.Equals(item.Index))
+                        sb.AppendLine();
+
+                    sb.AppendLine($"{name}[\"{item.Language}\", {item.Index}]=\"{item.Text}\"");
+                    lastIndex = item.Index;
+                }
+                return sb.ToString();
+            }
+
+            string CreateNoIndexString(List<TranslationItem> array, string name)
+            {
+                sb.Clear();
+                if (array == null)
+                    return sb.ToString();
+
+                foreach (var item in array)
+                {
+                    sb.AppendLine($"{name}[\"{item.Language}\"]=\"{item.Text}\"");
+                }
+                return sb.ToString();
+            }
 
             engine.Add("Data", new
             {
                 Version = version,
-                Translations = _translations
+                unknown_chipset = CreateNoIndexString(_translations.unknown_chipset, "unknown_chipset"),
+                hintprefix = CreateNoIndexString(_translations.hintprefix, "hintprefix"),
+                optionaltool_needed = CreateNoIndexString(_translations.optionaltool_needed, "optionaltool_needed"),
+                under_construction = CreateNoIndexString(_translations.under_construction, "under_construction"),
+                possible_package_names_text = CreateNoIndexString(_translations.possible_package_names_text, "possible_package_names_text"),
+                disabled_text = CreateNoIndexString(_translations.disabled_text, "disabled_text"),
+                reboot_required = CreateNoIndexString(_translations.reboot_required, "reboot_required"),
+                docker_image = CreateNoIndexString(_translations.docker_image, "docker_image"),
+                et_misc_texts = CreateIndexString(_translations.et_misc_texts, "et_misc_texts"),
+                wps_texts = CreateIndexString(_translations.wps_texts, "wps_texts"),
+                wep_texts = CreateIndexString(_translations.wep_texts, "wep_texts"),
+                asleap_texts = CreateIndexString(_translations.asleap_texts, "asleap_texts"),
+                jtr_texts = CreateIndexString(_translations.jtr_texts, "jtr_texts"),
+                hashcat_texts = CreateIndexString(_translations.hashcat_texts, "hashcat_texts"),
+                aircrack_texts = CreateIndexString(_translations.aircrack_texts, "aircrack_texts"),
+                enterprise_texts = CreateIndexString(_translations.enterprise_texts, "enterprise_texts"),
+                footer_texts = CreateIndexString(_translations.footer_texts, "footer_texts"),
+                arr = CreateIndexString(_translations.arr, "arr"),
             });
-
             var renderedText = engine.Render();
+
+            // Data.Translations.et_misc_texts : { translation | et_misc_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
+
             File.WriteAllText(destinationFilename, renderedText);
 
             return retVal;

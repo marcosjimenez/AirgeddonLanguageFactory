@@ -33,65 +33,47 @@ function initialize_language_strings() {
 	fi
 
 	declare -A unknown_chipset
-	¬Data.Translations.unknown_chipset : { translation | unknown_chipset["¬translation.Language¬"]="¬translation.Text¬"	
-	}¬
+	¬Data.unknown_chipset¬
 	unknown_chipsetvar="${unknown_chipset[${language}]}"
 
 	declare -A hintprefix
-	¬Data.Translations.hintprefix : { translation | hintprefix["¬translation.Language¬"]="¬translation.Text¬" 
-	}¬
+	¬Data.hintprefix¬
 	hintvar="*${hintprefix[${language}]}*"
 	escaped_hintvar="\*${hintprefix[${language}]}\*"
 
 	declare -A optionaltool_needed
-	¬Data.Translations.optionaltool_needed : { translation | optionaltool_needed["¬translation.Language¬"]="¬translation.Text¬" 
-	}¬
+	¬Data.optionaltool_needed¬
 	declare -A under_construction
-	¬Data.Translations.under_construction : { translation | under_construction["¬translation.Language¬"]="¬translation.Text¬" 
-	}¬	under_constructionvar="${under_construction[${language}]}"
+	¬Data.under_construction¬	under_constructionvar="${under_construction[${language}]}"
 
 	declare -gA possible_package_names_text
-	¬Data.Translations.possible_package_names_text : { translation | possible_package_names_text["¬translation.Language¬"]="¬translation.Text¬"
-	}¬
+	¬Data.possible_package_names_text¬
 	declare -gA disabled_text
-	¬Data.Translations.disabled_text : { translation | disabled_text["¬translation.Language¬"]="¬translation.Text¬"
-	}¬
+	¬Data.disabled_text¬
 	declare -gA reboot_required
-	¬Data.Translations.reboot_required : { translation | reboot_required["¬translation.Language¬"]="¬translation.Text¬"
-	}¬
+	¬Data.reboot_required¬
 	declare -gA docker_image
-	¬Data.Translations.docker_image : { translation | docker_image["¬translation.Language¬"]="¬translation.Text¬"
-	}¬
+	¬Data.docker_image¬
 	declare -gA et_misc_texts
-	¬Data.Translations.et_misc_texts : { translation | et_misc_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.et_misc_texts¬
 	declare -gA wps_texts
-	¬Data.Translations.wps_texts : { translation | wps_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.wps_texts¬
 	declare -gA wep_texts
-	¬Data.Translations.wep_texts : { translation | wep_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.wep_texts¬
 	declare -gA asleap_texts
-	¬Data.Translations.asleap_texts : { translation | asleap_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.asleap_texts¬
 	declare -gA jtr_texts
-	¬Data.Translations.jtr_texts : { translation | jtr_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.jtr_texts¬
 	declare -gA hashcat_texts
-	¬Data.Translations.hashcat_texts : { translation | hashcat_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.hashcat_texts¬
 	declare -gA aircrack_texts
-	¬Data.Translations.aircrack_texts : { translation | aircrack_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.aircrack_texts¬
 	declare -gA enterprise_texts
-	¬Data.Translations.enterprise_texts : { translation | enterprise_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.enterprise_texts¬
 	declare -gA footer_texts
-	¬Data.Translations.footer_texts : { translation | footer_texts["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.footer_texts¬
 	declare -gA arr
-	¬Data.Translations.arr: { translation | arr["¬translation.Language¬", ¬translation.Index¬]="¬translation.Text¬"
-	}¬
+	¬Data.arr¬
 }
 
 #Expand escaped variables in language strings with their actual values
