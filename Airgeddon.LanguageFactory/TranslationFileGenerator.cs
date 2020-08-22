@@ -1,18 +1,16 @@
-﻿using Airgeddon.LanguageFactory.Models;
-using System.IO;
-using System.Text;
-using System.Text.Json;
-
-namespace Airgeddon.LanguageFactory
+﻿namespace Airgeddon.LanguageFactory
 {
-    public class TranslationGenerator
+    using System.IO;
+    using System.Text;
+    using System.Text.Json;
+    using Airgeddon.LanguageFactory.Models;
+
+    public class TranslationFileGenerator
     {
 
         private readonly string _inputFilename;
-        private readonly string[] NoIndexWords = { "unknown_chipset", "hintprefix", "optionaltool_needed", "under_construction", "possible_package_names_text", "disabled_text", "reboot_required", "docker_image" };
-        private readonly string[] IndexWords = { "et_misc_texts", "wps_texts", "asleap_texts", "jtr_texts", "hashcat_texts", "aircrack_texts", "enterprise_texts", "footer_texts", "arr" };
 
-        public TranslationGenerator(string inputFilename)
+        public TranslationFileGenerator(string inputFilename)
         {
             _inputFilename = inputFilename;
         }
@@ -27,7 +25,7 @@ namespace Airgeddon.LanguageFactory
             while (line != null)
             {
                 var IsChecked = false;
-                foreach(var noIndexWord in NoIndexWords)
+                foreach(var noIndexWord in TranslationConstants.NoIndexWords)
                 {
                     if (IsChecked)
                         break;
@@ -45,7 +43,7 @@ namespace Airgeddon.LanguageFactory
                     if (IsChecked)
                         break;
 
-                    foreach (var indexWord in IndexWords)
+                    foreach (var indexWord in TranslationConstants.IndexWords)
                     {
                         if (line.Contains($"{indexWord}[\""))
                         {

@@ -6,6 +6,18 @@
     "Generate": {
       "commandName": "Project",
       "commandLineArgs": "generate -f translations.json"
+    },
+    "Add": {
+      "commandName": "Project",
+      "commandLineArgs": "add -f translations.json -r SPANISH -l Arabic -i ar -c"
+    },
+    "CreateScript": {
+      "commandName": "Project",
+      "commandLineArgs": "create -f translations.json -n language_generated.sh"
+    },
+    "Fixes": {
+      "commandName": "Project",
+      "commandLineArgs": "fixes -f translations.json"
     }
   }
 }

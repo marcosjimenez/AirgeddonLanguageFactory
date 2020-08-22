@@ -11,18 +11,34 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <None Remove="template.sh" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="language_strings.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
+    <PackageReference Include="StringTemplate4" Version="4.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
     <None Include="img\airgeddon_icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GoogleTranslateFreeApi\GoogleTranslateFreeApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="template.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

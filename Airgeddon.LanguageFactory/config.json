@@ -1,0 +1,38 @@
+{
+  "Languages": {
+    "ENGLISH": "en",
+    "SPANISH": "es",
+    "FRENCH": "fr",
+    "CATALAN": "ca",
+    "PORTUGUESE": "pt",
+    "RUSSIAN": "ru",
+    "GREEK": "el",
+    "ITALIAN": "it",
+    "POLISH": "pl",
+    "GERMAN": "de",
+    "TURKISH": "tr",
+    "ARABIC" :  "ar"
+  },  
+  "TranslationFixes": [
+    {
+      "Find": [ "$ {", "${ ", "$ { " ],
+      "ReplaceWith": "${"
+    },
+    {
+      "Find": [ "\\ \"" ],
+      "ReplaceWith": "\\\""
+    },
+    {
+      "Find": [ "[Ctrl + C]" ],
+      "ReplaceWith": "[Ctrl+C]"
+    },
+    {
+      "Find": [ "${Blue_color}" ],
+      "ReplaceWith": "${blue_color}"
+    },
+    {
+      "Find": [ "\\ $" ],
+      "ReplaceWith": "\\$"
+    }
+  ]
+}
