@@ -11,8 +11,6 @@
     using Airgeddon.LanguageFactory.Helpers;
     using Airgeddon.LanguageFactory.Infrastructure.Exceptions;
     using Antlr4.StringTemplate;
-    using System.Runtime.CompilerServices;
-    using System.Reflection.Metadata.Ecma335;
 
     public class TranslationManager
     {
@@ -28,6 +26,9 @@
 
         public void Initialize(string inputFile)
         {
+            if (!File.Exists(inputFile))
+                throw new FileNotFoundException(inputFile);
+
             _config = GetConfig();
 
             _translations = inputFile.FromJson<TranslationFile>();
@@ -221,10 +222,9 @@
                     type.Add(new TranslationItem
                     {
                         Language = newLanguage,
-                        Text = translatedText
+                        Text = string.Concat(PendingOfTranslation, translatedText)
                     });
             }
-
         }
 
         public bool GenerateScript(string destinationFilename, string version)
@@ -301,6 +301,49 @@
             File.WriteAllText(destinationFilename, renderedText);
 
             return retVal;
+        }
+
+        public void ApplyFixes()
+        {
+
+            //item.Text = FixTranslation(item.Text);
+
+            // No index words
+            for (int i = 0; i < TranslationConstants.NoIndexWords.Length; i++)
+            {
+                ShowMessage($"Fixing {TranslationConstants.NoIndexWords[i]}");
+                var type = _translations.GetType().GetProperty(TranslationConstants.NoIndexWords[i])
+                    .GetValue(_translations, null) as List<TranslationItem>;
+
+                if (type == null)
+                    continue;
+
+                foreach (var item in type)
+                {
+                    item.Text = FixTranslation(item.Text);
+                }
+            }
+
+            // index words
+            for (int i = 0; i < TranslationConstants.IndexWords.Length; i++)
+            {
+                ShowMessage($"Fixing {TranslationConstants.IndexWords[i]}");
+                var type = _translations.GetType().GetProperty(TranslationConstants.IndexWords[i])
+                    .GetValue(_translations, null) as List<TranslationItemWithIndex>;
+
+                if (type == null)
+                    continue;
+
+                foreach (var item in type)
+                {
+                    item.Text = FixTranslation(item.Text);
+                }
+            }
+
+            _translations.ToJsonFile(_destinationFile);
+
+            ShowMessage($"{_destinationFile} updated");
+
         }
 
         /// <summary>

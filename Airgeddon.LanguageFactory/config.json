@@ -10,7 +10,8 @@
     "ITALIAN": "it",
     "POLISH": "pl",
     "GERMAN": "de",
-    "TURKISH": "tr"
+    "TURKISH": "tr",
+    "ARABIC" :  "ar"
   },  
   "TranslationFixes": [
     {
@@ -19,7 +20,19 @@
     },
     {
       "Find": [ "\\ \"" ],
-      "ReplaceWith":  "\\\""
+      "ReplaceWith": "\\\""
+    },
+    {
+      "Find": [ "[Ctrl + C]" ],
+      "ReplaceWith": "[Ctrl+C]"
+    },
+    {
+      "Find": [ "${Blue_color}" ],
+      "ReplaceWith": "${blue_color}"
+    },
+    {
+      "Find": [ "\\ $" ],
+      "ReplaceWith": "\\$"
     }
   ]
 }

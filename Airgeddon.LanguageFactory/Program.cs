@@ -14,11 +14,12 @@
         static int Main(string[] args)
         {
 
-            return Parser.Default.ParseArguments<GenerateOptions, AddOptions, CreateScriptOption>(args)
+            return Parser.Default.ParseArguments<GenerateOptions, AddOptions, CreateScriptOption, FixesOptions>(args)
                .MapResult(
                  (GenerateOptions opts) => RunGenerate(opts),
                  (AddOptions opts) => RunAdd(opts),
                  (CreateScriptOption opts) => RunCreateScript(opts),
+                 (FixesOptions opts) => RunFixes(opts),
                  errs => 1);
         }
 
@@ -129,6 +130,22 @@
 
         static int RunScriptCreation(TranslationManager manager, CreateScriptOption opts)
             => manager?.GenerateScript(opts.ScriptFilename, opts.Version) == true ? 0 : 1;
+
+
+        static int RunFixes(FixesOptions opts)
+        {
+            var manager = new TranslationManager
+            {
+                ConsoleMessage = (x) => ShowMessage(x)
+            };
+            manager.Initialize(opts.Filename);
+
+            ShowMessage($"Applying fixes on {opts.Filename}");
+
+            manager.ApplyFixes();
+
+            return 0;
+        }
 
         private static void ShowErrors(List<string> errors)
         {

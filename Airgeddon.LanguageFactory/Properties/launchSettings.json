@@ -14,6 +14,10 @@
     "CreateScript": {
       "commandName": "Project",
       "commandLineArgs": "create -f translations.json -n language_generated.sh"
+    },
+    "Fixes": {
+      "commandName": "Project",
+      "commandLineArgs": "fixes -f translations.json"
     }
   }
 }
