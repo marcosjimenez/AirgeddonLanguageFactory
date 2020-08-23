@@ -25,7 +25,7 @@
     },
     "Languages": {
       "commandName": "Project",
-      "commandLineArgs": "languages"
+      "commandLineArgs": "languages -f translations.json"
     }
   }
 }

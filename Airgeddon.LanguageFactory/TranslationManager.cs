@@ -38,6 +38,10 @@
             _translationsFile = inputFile;
         }
 
+
+        public List<KeyValuePair<string, string>> ListLanguages()
+            => _config.Languages.ToList();
+
         public List<string> AddTranslation(string referenceLanguage, string newLanguage, string isoCode, bool continueGeneration)
         {
             var retVal = new List<string>();

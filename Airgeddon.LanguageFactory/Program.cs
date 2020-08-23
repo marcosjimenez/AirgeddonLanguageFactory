@@ -7,6 +7,8 @@
     using System.Text;
     using Airgeddon.LanguageFactory.Verbs;
     using CommandLine;
+    using ConsoleTables;
+
     class Program
     {
         private const string TranslationFilename = "language_strings.sh";
@@ -14,10 +16,11 @@
         static int Main(string[] args)
         {
 
-            return Parser.Default.ParseArguments<GenerateOptions, 
-                AddLanguageOptions, 
-                CreateScriptOption, 
+            return Parser.Default.ParseArguments<GenerateOptions,
+                AddLanguageOptions,
+                CreateScriptOption,
                 FixesOptions,
+                LanguagesOptions,
                 AddSentenceOptions>(args)
                .MapResult(
                  (GenerateOptions opts) => RunGenerate(opts),
@@ -25,6 +28,7 @@
                  (AddSentenceOptions opts) => RunAddSentence(opts),
                  (CreateScriptOption opts) => RunCreateScript(opts),
                  (FixesOptions opts) => RunFixes(opts),
+                 (LanguagesOptions opts) => RunLanguages(opts),
                  errs => 1);
         }
 
@@ -161,6 +165,28 @@
             ShowMessage($"Applying fixes on {opts.Filename}");
 
             manager.ApplyFixes();
+
+            return 0;
+        }
+
+        static int RunLanguages(LanguagesOptions opts)
+        {
+
+            var manager = new TranslationManager
+            {
+                ConsoleMessage = (x) => ShowMessage(x)
+            };
+            manager.Initialize(opts.Filename);
+
+            var languages = manager.ListLanguages();
+
+            var table = new ConsoleTable("Language", "ISO-639-1");
+            foreach (var item in languages)
+            {
+                table.AddRow(item.Key, item.Value);
+            }
+
+            table.Write(Format.Minimal);
 
             return 0;
         }
