@@ -11,6 +11,8 @@
     using Airgeddon.LanguageFactory.Helpers;
     using Airgeddon.LanguageFactory.Infrastructure.Exceptions;
     using Antlr4.StringTemplate;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Runtime.InteropServices.ComTypes;
 
     public class TranslationManager
     {
@@ -20,7 +22,7 @@
 
         private TranslationFile _translations;
         private TranslationManagerConfig _config;
-        private string _destinationFile = string.Empty;
+        private string _translationsFile = string.Empty;
 
         public Action<string> ConsoleMessage = null;
 
@@ -33,7 +35,7 @@
 
             _translations = inputFile.FromJson<TranslationFile>();
 
-            _destinationFile = inputFile;
+            _translationsFile = inputFile;
         }
 
         public List<string> AddTranslation(string referenceLanguage, string newLanguage, string isoCode, bool continueGeneration)
@@ -139,7 +141,7 @@
 
             try
             {
-                _translations.ToJsonFile(_destinationFile);
+                _translations.ToJsonFile(_translationsFile);
             }
             catch(Exception ex)
             {
@@ -227,6 +229,57 @@
             }
         }
 
+        public bool AddSentence(string arrayName, string reference, string sentence)
+        {
+
+            if (!_config.Languages.Any(x => x.Value == reference))
+            { 
+                ShowMessage($"Reference language [{reference}] not found in config.json language list (use ISO code)");
+                return false;
+            }
+
+            if (!TranslationConstants.IndexWords.Contains(arrayName.Trim().ToLower()))
+            {
+                ShowMessage($"Invalid array name: {arrayName}");
+                return false;
+            }
+            else
+            {
+                ShowMessage($"Adding new sentence to {arrayName}");
+
+                var type = _translations.GetType()
+                                        .GetProperty(arrayName)
+                                        .GetValue(_translations, null)
+                                        as List<TranslationItemWithIndex>;
+
+                int newIndex;
+                if (type != null)
+                    newIndex = type.Max(x => int.Parse(x.Index)) + 1;
+                else
+                    newIndex = 0;
+
+                foreach (var language in _config.Languages)
+                {
+                    ShowMessage($"Translating to {language}");
+                    string text = (language.Value != reference) ? 
+                        string.Concat(PendingOfTranslation, TranslateText(sentence, reference, language.Value))
+                        : sentence;
+
+                    type.Add(new TranslationItemWithIndex
+                    {
+                        Index = newIndex.ToString(),
+                        Language = language.Key,
+                        Text = text
+                    });
+                }
+            }
+
+            _translations.SortIndexItems();
+            _translations.ToJsonFile(_translationsFile);
+
+            return true;
+        }
+
         public bool GenerateScript(string destinationFilename, string version)
         {
             bool retVal = true;
@@ -253,7 +306,7 @@
                     if (!string.IsNullOrEmpty(lastIndex) && !lastIndex.Equals(item.Index))
                         sb.AppendLine();
 
-                    sb.AppendLine($"{name}[\"{item.Language}\", {item.Index}]=\"{item.Text}\"");
+                    sb.AppendLine($"{name}[\"{item.Language}\",{item.Index}]=\"{item.Text}\"");
                     lastIndex = item.Index;
                 }
                 return sb.ToString();
@@ -340,9 +393,10 @@
                 }
             }
 
-            _translations.ToJsonFile(_destinationFile);
+            _translations.SortIndexItems();
+            _translations.ToJsonFile(_translationsFile);
 
-            ShowMessage($"{_destinationFile} updated");
+            ShowMessage($"{_translationsFile} updated");
 
         }
 

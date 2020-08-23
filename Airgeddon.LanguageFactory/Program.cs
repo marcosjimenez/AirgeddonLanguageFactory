@@ -14,10 +14,15 @@
         static int Main(string[] args)
         {
 
-            return Parser.Default.ParseArguments<GenerateOptions, AddOptions, CreateScriptOption, FixesOptions>(args)
+            return Parser.Default.ParseArguments<GenerateOptions, 
+                AddLanguageOptions, 
+                CreateScriptOption, 
+                FixesOptions,
+                AddSentenceOptions>(args)
                .MapResult(
                  (GenerateOptions opts) => RunGenerate(opts),
-                 (AddOptions opts) => RunAdd(opts),
+                 (AddLanguageOptions opts) => RunAddLanguage(opts),
+                 (AddSentenceOptions opts) => RunAddSentence(opts),
                  (CreateScriptOption opts) => RunCreateScript(opts),
                  (FixesOptions opts) => RunFixes(opts),
                  errs => 1);
@@ -63,7 +68,7 @@
             }
         }
 
-        static int RunAdd(AddOptions opts)
+        static int RunAddLanguage(AddLanguageOptions opts)
         {
             var retVal = 0;
             CheckInputFileExists();
@@ -108,6 +113,19 @@
             }
 
             return retVal;
+        }
+
+        static int RunAddSentence(AddSentenceOptions opts)
+        {
+            var manager = new TranslationManager
+            {
+                ConsoleMessage = (x) => ShowMessage(x)
+            };
+            manager.Initialize(opts.Filename);
+
+            var retVal = manager.AddSentence(opts.ArrayName, opts.Reference, opts.Sentence);
+
+            return retVal ? 0 : 1;
         }
 
         static int RunCreateScript(CreateScriptOption opts)
