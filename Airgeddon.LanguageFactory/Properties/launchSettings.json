@@ -9,7 +9,7 @@
     },
     "Add": {
       "commandName": "Project",
-      "commandLineArgs": "add -f translations.json -r SPANISH -l Arabic -i ar -c"
+      "commandLineArgs": "addlanguage -f translations.json -r SPANISH -l Arabic -i ar -c"
     },
     "CreateScript": {
       "commandName": "Project",
@@ -18,6 +18,14 @@
     "Fixes": {
       "commandName": "Project",
       "commandLineArgs": "fixes -f translations.json"
+    },
+    "AddSentence": {
+      "commandName": "Project",
+      "commandLineArgs": "addsentence -f translations.json -r es -s \"Ahí va una frase nueva\" -a et_misc_texts"
+    },
+    "Languages": {
+      "commandName": "Project",
+      "commandLineArgs": "languages"
     }
   }
 }

@@ -2,8 +2,8 @@
 
 namespace Airgeddon.LanguageFactory.Verbs
 {
-    [Verb("add", HelpText = "Adds a new language.")]
-    public class AddOptions : BaseOptions
+    [Verb("addlanguage", HelpText = "Adds a new language.")]
+    public class AddLanguageOptions : BaseOptions
     {
         [Option('r', "reference", HelpText = "Reference language (used to translate the new one)")]
         public string Reference { get; set; }
